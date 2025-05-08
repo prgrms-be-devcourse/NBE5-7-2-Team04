@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
     // 시스템
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
 
     // 인증 관련
 
@@ -17,6 +17,8 @@ public enum ErrorCode {
     // 예약 관련
 
     // 환불 관련
+    NO_SUCH_REFUND_ERROR(HttpStatus.NOT_FOUND, "존재하지 않는 환불ID입니다."),
+    DUPLICATE_REFUND_ERROR(HttpStatus.CONFLICT, "이미 존재하는 환불내역입니다.");
 
     // 정산 관련
 
