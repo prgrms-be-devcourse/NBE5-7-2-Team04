@@ -57,6 +57,9 @@ jobs:
           logging:
             level:
               web: debug
+
+          commit:
+            hash: test
           EOT
         shell: bash
 
