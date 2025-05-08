@@ -20,10 +20,10 @@ COPY --from=builder /build/build/libs/*-SNAPSHOT.jar ./app.jar
 EXPOSE 8080
 
 USER nobody
-ENTRYPOINT [
-    "java",
-    "-jar",
-    "-Djava.security.egd=file:/dev/./urandom",
-    "-Dsun.net.inetaddr.ttl=0",
-    "app.jar"
+ENTRYPOINT [                                                \
+    "java",                                                 \
+    "-jar",                                                 \
+    "-Djava.security.egd=file:/dev/./urandom",              \
+    "-Dsun.net.inetaddr.ttl=0",                             \
+    "app.jar"              \
 ]
