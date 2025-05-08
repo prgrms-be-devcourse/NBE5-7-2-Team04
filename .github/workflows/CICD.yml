@@ -122,7 +122,7 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
-          username: ubuntu
+          username: ec2-user
           key: ${{ secrets.KEY }}
           script: |
             echo "Stopping and removing existing Docker containers..."
