@@ -60,6 +60,16 @@ jobs:
 
           commit:
             hash: test
+
+          cloud:
+              aws:
+                  credentials:
+                      access-key: ${{ secrets.AWS_S3_ACCESS_KEY }}
+                      secret-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+                  region: ap-northeast-2
+                  s3:
+                      bucket: ${{ secrets.AWS_S3_BUCKET_NAME }}
+
           EOT
         shell: bash
 
