@@ -16,7 +16,7 @@ public class RefundResponse {
     private String bank;
     private RefundStatus status;
 
-    public static RefundResponse fromEntity(Refund refund) {
+    public static RefundResponse fromRefund(Refund refund) {
         return RefundResponse.builder()
                 .refundId(refund.getId())
                 .reservationId(refund.getReservationId())
