@@ -1,40 +1,47 @@
 name: CI/CD
-
 on:
   push:
     branches:
       - main
       - develop
       - feature/cicd
-
 permissions:
   contents: read
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: 1234
+          MYSQL_DATABASE: testDB
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -p1234"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+          
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Get short SHA
         id: slug
         run: echo "sha7=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
-
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-
-      - name: Setup MySQL
-        uses: mirromutth/mysql-action@v1.1
-        with:
-          mysql database: 'testDB'
-          mysql user: 'root'
-          mysql password: '1234'
-
+          
+      - name: Verify MySQL connection
+        run: |
+          sudo apt-get install -y mysql-client
+          mysql -h127.0.0.1 -P3306 -uroot -p1234 -e "SHOW DATABASES;"
+          
       - name: Create application.yml
         run: |
           mkdir -p ./backend/src/main/resources
@@ -45,7 +52,6 @@ jobs:
               username: ${{ secrets.DB_USERNAME }}
               password: ${{ secrets.DB_PASSWORD }}
               driver-class-name: com.mysql.cj.jdbc.Driver
-
             jpa:
               hibernate:
                 ddl-auto: create
@@ -53,25 +59,21 @@ jobs:
               properties:
                 hibernate:
                   format_sql: true
-
             data:
               redis:
                 host: localhost
                 port: 6379
-
           logging:
             level:
               web: debug
-
           commit:
             hash: ${{ steps.slug.outputs.sha7 }}
-
           spring:
             profiles:
               active: test
           EOT
         shell: bash
-
+      
       - name: Create test application.yml
         run: |
           mkdir -p ./backend/src/test/resources
@@ -102,12 +104,12 @@ jobs:
             hash: test
           EOT
         shell: bash
-
-
+      
       - name: Build with Gradle
         run: |
           cd backend
           chmod +x gradlew
+          ./gradlew test --info
           ./gradlew build
 
       - name: Docker build and push
