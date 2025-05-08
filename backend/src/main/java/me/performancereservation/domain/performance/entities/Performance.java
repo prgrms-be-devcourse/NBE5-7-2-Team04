@@ -1,0 +1,54 @@
+package me.performancereservation.domain.performance.entities;
+
+import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import me.performancereservation.domain.common.BaseEntity;
+import me.performancereservation.domain.performance.enums.PerformanceCategory;
+import me.performancereservation.domain.performance.enums.PerformanceStatus;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Getter
+@NoArgsConstructor
+public class Performance extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // 공연 ID
+
+    private Long fileId; // (FK) 파일 ID - 공연 썸네일 용도
+
+    private Long managerId; // (FK) 공연관리자 ID
+
+    private String title; // 제목
+
+    private String venue; // 공연 장소
+
+    private int price; // 가격
+
+    @Enumerated(EnumType.STRING)
+    private PerformanceCategory category; // 공연 분류
+
+    private LocalDateTime performance_date; // 공연 일시
+
+    private String description; // 설명
+
+    @Enumerated(EnumType.STRING)
+    private PerformanceStatus status; // 공연 상태
+
+    @Builder
+    public Performance(Long id, Long fileId, Long managerId, String title, String venue, int price, PerformanceCategory category, LocalDateTime performance_date, String description, PerformanceStatus status) {
+        this.id = id;
+        this.fileId = fileId;
+        this.managerId = managerId;
+        this.title = title;
+        this.venue = venue;
+        this.price = price;
+        this.category = category;
+        this.performance_date = performance_date;
+        this.description = description;
+        this.status = status;
+    }
+}
