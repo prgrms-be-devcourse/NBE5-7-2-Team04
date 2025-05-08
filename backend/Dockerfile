@@ -1,5 +1,5 @@
 # Gradle 빌드 환경을 설정 (Java 21 지원)
-FROM gradle:7.6-jdk21-alpine as builder
+FROM gradle:8.5-jdk21 as builder
 WORKDIR /build
 
 # 그래들 파일이 변경되었을 때만 새롭게 의존패키지 다운로드 받게함
@@ -19,12 +19,11 @@ COPY --from=builder /build/build/libs/*-SNAPSHOT.jar ./app.jar
 
 EXPOSE 8080
 
-# root 대신 nobody 권한으로 실행
 USER nobody
-ENTRYPOINT [                                                \
-    "java",                                                 \
-    "-jar",                                                 \
-    "-Djava.security.egd=file:/dev/./urandom",              \
-    "-Dsun.net.inetaddr.ttl=0",                             \
-    "app.jar"                                               \
+ENTRYPOINT [
+    "java",
+    "-jar",
+    "-Djava.security.egd=file:/dev/./urandom",
+    "-Dsun.net.inetaddr.ttl=0",
+    "app.jar"
 ]
