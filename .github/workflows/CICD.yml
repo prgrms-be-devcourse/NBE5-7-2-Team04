@@ -78,11 +78,10 @@ jobs:
           cat <<EOT > ./backend/src/test/resources/application.yml
           spring:
             datasource:
-              url: jdbc:mysql://localhost:3306/testDB
+              url: jdbc:mysql://localhost:3306/testDB?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
               username: root
               password: 1234
               driver-class-name: com.mysql.cj.jdbc.Driver
-
             jpa:
               hibernate:
                 ddl-auto: create-drop
@@ -90,10 +89,17 @@ jobs:
               properties:
                 hibernate:
                   format_sql: true
-
+                  dialect: org.hibernate.dialect.MySQL8Dialect
+            test:
+              database:
+                replace: none
           logging:
             level:
               web: debug
+              org.hibernate.SQL: debug
+              org.hibernate.type.descriptor.sql: trace
+          commit:
+            hash: test
           EOT
         shell: bash
 
