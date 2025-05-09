@@ -28,7 +28,7 @@ public class UserPerformanceController {
     /** 메인화면 호출(공연목록 조회)
      *
      * @param pageable 10개 단위 페이징 + 최신 공연 내림차순
-     * @return ResponseEntity<Page<PerformanceListResponse>>
+     * @return 200 + performanceResponses
      */
     @GetMapping
     public ResponseEntity<Page<PerformanceListResponse>> getPerformanceList(
@@ -40,7 +40,7 @@ public class UserPerformanceController {
     /** 공연 상세정보 페이지 호출
      *
      * @param performanceId
-     * @return ResponseEntity<PerformanceDetailResponse>
+     * @return 200 + performanceResponse
      */
     @GetMapping("/performances/{performanceId}")
     public ResponseEntity<PerformanceDetailResponse> getPerformanceDetail(@PathVariable Long performanceId) {

@@ -103,6 +103,13 @@ public class ManagerPerformanceController {
     @PatchMapping("/performances/{performanceId}")
     public ResponseEntity<Void> cancelPerformance(@PathVariable Long performanceId, Long managerId) {
         performanceService.cancelPerformance(performanceId, managerId);
+
+        /*
+
+            예약 취소 관련 로직...?
+
+         */
+
         return ResponseEntity.noContent().build();
     }
 
@@ -119,6 +126,11 @@ public class ManagerPerformanceController {
                                                           @PathVariable Long performanceScheduleId,
                                                           Long managerId) {
         performanceScheduleService.cancelPerformanceSchedule(performanceId, performanceScheduleId, managerId);
+        /*
+
+            예약 취소 관련 로직...?
+
+         */
         return ResponseEntity.noContent().build();
     }
 
