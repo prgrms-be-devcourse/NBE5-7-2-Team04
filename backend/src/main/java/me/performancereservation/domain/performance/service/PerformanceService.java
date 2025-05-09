@@ -1,6 +1,7 @@
 package me.performancereservation.domain.performance.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.performancereservation.domain.file.File;
 import me.performancereservation.domain.file.FileRepository;
 import me.performancereservation.domain.performance.dto.performance.request.PerformanceCreateRequest;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PerformanceService {
@@ -42,12 +44,9 @@ public class PerformanceService {
      * @return performanceId
      */
     @Transactional
-//    public Long createPerformance(PerformanceCreateRequest request, Long fileId, Long managerId) {
-    public Long createPerformance(PerformanceCreateRequest request) {
+    public Long createPerformance(PerformanceCreateRequest request, Long fileId, Long managerId) {
 
-//        공연자 id, 파일 id 추가 필요
-//        return performanceRepository.save(PerformanceMapper.toEntity(request, fileId, managerId)).getId();
-        return performanceRepository.save(PerformanceMapper.toEntity(request)).getId();
+        return performanceRepository.save(PerformanceMapper.toEntity(request, fileId, managerId)).getId();
     }
 
 
@@ -58,9 +57,15 @@ public class PerformanceService {
      * @return performanceId
      */
     @Transactional
-    public Long updatePerformance(Long performanceId, PerformanceUpdateRequest request) {
+    public Long updatePerformance(Long performanceId, PerformanceUpdateRequest request, Long managerId) {
         Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("id=" + performanceId));
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + performanceId));
+
+        // 권한 검사
+        if(!hasPermission(managerId, performance)) {
+            throw ErrorCode.PERMISSION_DENIED.domainException("수정 권한이 없습니다. id=" + performanceId);
+        }
+
         performance.updateFrom(request);
         return performance.getId();
     }
@@ -71,9 +76,15 @@ public class PerformanceService {
      * @param performanceId
      */
     @Transactional
-    public void cancelPerformance(Long performanceId) {
+    public Long cancelPerformance(Long performanceId, Long managerId) {
         Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("id=" + performanceId));
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + performanceId));
+
+        // 권한 검사
+        if(!hasPermission(managerId, performance)) {
+            throw ErrorCode.PERMISSION_DENIED.domainException(
+                    "공연을 취소할 권한이 없습니다. performance id=" + performanceId + ", managerId=" + managerId);
+        }
 
         // 공연 취소
         performance.cancel();
@@ -81,6 +92,7 @@ public class PerformanceService {
         performanceScheduleRepository.findByPerformanceId(performance.getId())
                 .forEach(PerformanceSchedule::cancel);
 
+        return performance.getId();
     }
 
     /** 고객 공연 목록 조회
@@ -121,7 +133,7 @@ public class PerformanceService {
     public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
         // 공연 조회
         Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("id=" + performanceId));
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + performanceId));
 
         // 회차 조회
         List<PerformanceSchedule> schedules = performanceScheduleRepository
@@ -129,7 +141,7 @@ public class PerformanceService {
 
         // 파일 조회
         File file = fileRepository.findById(performance.getFileId())
-                .orElseThrow(() -> ErrorCode.FILE_NOT_FOUND.domainException("id=" + performance.getFileId()));
+                .orElseThrow(() -> ErrorCode.FILE_NOT_FOUND.domainException("해당하는 파일을 찾을 수 없습니다. id=" + performance.getFileId()));
 
 
         return PerformanceMapper.toDetailResponse(performance, file.getKey(), schedules);
@@ -166,14 +178,19 @@ public class PerformanceService {
      * @return PerformanceManagerDetailResponse
      */
     @Transactional(readOnly = true)
-    public PerformanceManagerDetailResponse getPerformanceManagerDetail(Long performanceId) {
+    public PerformanceManagerDetailResponse getPerformanceManagerDetail(Long performanceId, Long managerId) {
         // 해당 공연 조회
         Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("id=" + performanceId));
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + performanceId));
+
+        // 공연자의 공연이 맞는지 권한 검사
+        if(!hasPermission(managerId, performance)) {
+            throw ErrorCode.PERMISSION_DENIED.domainException("performanceId=" + performanceId + "는 managerId=" + managerId + "의 공연이 아닙니다.");
+        }
 
         // 연결된 파일 조회
         File file = fileRepository.findById(performance.getFileId())
-                .orElseThrow(() -> ErrorCode.FILE_NOT_FOUND.domainException("id=" + performance.getFileId()));
+                .orElseThrow(() -> ErrorCode.FILE_NOT_FOUND.domainException("해당하는 파일을 찾을 수 없습니다. id=" + performance.getFileId()));
 
         // 연결된 회차 조회
         List<PerformanceSchedule> schedules = performanceScheduleRepository.findByPerformanceId(performance.getId());
@@ -182,6 +199,11 @@ public class PerformanceService {
         List<PerformanceScheduleResponse> scheduleResponses = schedules.stream().map(PerformanceScheduleMapper::toResponse).toList();
 
         return PerformanceMapper.toManagerDetailResponse(performance, file.getKey(), scheduleResponses);
+    }
+
+    // 권한 검사
+    private static boolean hasPermission(Long managerId, Performance performance) {
+        return performance.getManagerId().equals(managerId);
     }
 
 }

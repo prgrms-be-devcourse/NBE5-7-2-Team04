@@ -28,9 +28,14 @@ public class PerformanceScheduleService {
      * @return performanceScheduleId
      */
     @Transactional
-    public Long createPerformanceSchedule(Long performanceId, PerformanceScheduleRequest request) {
+    public Long createPerformanceSchedule(Long performanceId, PerformanceScheduleRequest request, Long managerId) {
         Performance performance = performanceRepository.findById(performanceId)
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("id=" + performanceId));
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + performanceId));
+
+        // 권한 검사
+        if(!hasPermission(managerId, performance)) {
+            throw ErrorCode.PERMISSION_DENIED.domainException("등록 권한이 없습니다.");
+        }
 
         // 해당 공연이 존재하고 관리자에게 승인을 받은 상태인지 확인
         if(!(performance.getStatus() == PerformanceStatus.CONFIRMED)) {
@@ -50,11 +55,34 @@ public class PerformanceScheduleService {
      * @return scheduleId
      */
     @Transactional
-    public Long cancelPerformanceSchedule(Long performanceScheduleId) {
+    public Long cancelPerformanceSchedule(Long performanceId, Long performanceScheduleId, Long managerId) {
+        // 취소할 회차 검색
         PerformanceSchedule schedule = performanceScheduleRepository.findById(performanceScheduleId)
-                .orElseThrow(() -> ErrorCode.PERFORMANCE_SCHEDULE_NOT_FOUND.domainException("id=" + performanceScheduleId));
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_SCHEDULE_NOT_FOUND.domainException("해당하는 공연 회차를 찾을 수 없습니다. id=" + performanceScheduleId));
+
+        // 회차가 속한 공연 검색
+        Performance performance = performanceRepository.findById(performanceId)
+                .orElseThrow(() -> ErrorCode.PERFORMANCE_NOT_FOUND.domainException("해당하는 공연을 찾을 수 없습니다. id=" + performanceId));
+
+        // 공연에 대한 접근 권한 검사
+        if(!hasPermission(managerId, performance)) {
+            throw ErrorCode.PERMISSION_DENIED.domainException("공연에 대한 권한이 없습니다.");
+        }
+
+        // 회차에 대한 접근 권한 검사
+        if(!hasSchedulePermission(performance, schedule)) {
+            throw ErrorCode.PERMISSION_DENIED.domainException("회차에 대한 권한이 없습니다.");
+        }
 
         schedule.cancel();
         return schedule.getId();
+    }
+
+    private static boolean hasSchedulePermission(Performance performance, PerformanceSchedule schedule) {
+        return performance.getId().equals(schedule.getId());
+    }
+
+    private static boolean hasPermission(Long managerId, Performance performance) {
+        return performance.getManagerId().equals(managerId);
     }
 }

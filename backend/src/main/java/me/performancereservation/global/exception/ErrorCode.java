@@ -18,6 +18,7 @@ public enum ErrorCode {
     EMPTY_FILE_UPLOAD(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다."),
 
     // 유저 관련
+    PERMISSION_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
 
     // 공연 관련
     PERFORMANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 공연을 찾을 수 없습니다."),
