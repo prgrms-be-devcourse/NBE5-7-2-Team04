@@ -4,8 +4,8 @@ on:
   push:
     branches-ignore:
       - main
-      - develop
-      - 'fe/*'
+      - dev
+      - 'fe/**'
 
 jobs:
   build:
@@ -65,11 +65,11 @@ jobs:
           cloud:
               aws:
                   credentials:
-                      access-key: ${{ secrets.AWS_S3_ACCESS_KEY }}
-                      secret-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+                      access-key: dummy-key-for-test
+                      secret-key: dummy-secret-for-test
                   region: ap-northeast-2
                   s3:
-                      bucket: ${{ secrets.AWS_S3_BUCKET_NAME }}
+                      bucket: dummy-bucket-for-test
 
           EOT
         shell: bash
