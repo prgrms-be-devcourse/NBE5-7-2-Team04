@@ -5,7 +5,7 @@ on:
     branches-ignore:
       - main
       - develop
-      - 'fe/*'
+      - 'fe/**'
 
 jobs:
   build:
