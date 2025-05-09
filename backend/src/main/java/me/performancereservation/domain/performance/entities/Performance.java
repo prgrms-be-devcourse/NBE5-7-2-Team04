@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.performancereservation.domain.common.BaseEntity;
+import me.performancereservation.domain.performance.dto.performance.request.PerformanceUpdateRequest;
 import me.performancereservation.domain.performance.enums.PerformanceCategory;
 import me.performancereservation.domain.performance.enums.PerformanceStatus;
 
@@ -33,7 +34,7 @@ public class Performance extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PerformanceCategory category; // 공연 분류
 
-    private LocalDateTime performance_date; // 공연 일시
+    private LocalDateTime performanceDate; // 공연 일시
 
     private String description; // 설명
 
@@ -41,7 +42,7 @@ public class Performance extends BaseEntity {
     private PerformanceStatus status; // 공연 상태
 
     @Builder
-    public Performance(Long id, Long fileId, Long managerId, String title, String venue, int price, int totalSeats, PerformanceCategory category, LocalDateTime performance_date, String description, PerformanceStatus status) {
+    public Performance(Long id, Long fileId, Long managerId, String title, String venue, int price, int totalSeats, PerformanceCategory category, LocalDateTime performanceDate, String description, PerformanceStatus status) {
         this.id = id;
         this.fileId = fileId;
         this.managerId = managerId;
@@ -50,8 +51,19 @@ public class Performance extends BaseEntity {
         this.price = price;
         this.totalSeats = totalSeats;
         this.category = category;
-        this.performance_date = performance_date;
+        this.performanceDate = performanceDate;
         this.description = description;
         this.status = status;
+    }
+
+    public void updateFrom(PerformanceUpdateRequest request) {
+        this.fileId = request.fileId();
+        this.description = request.description();
+    }
+
+    public void cancel() {
+        if(!(this.status == PerformanceStatus.CANCELLED)) {
+            this.status = PerformanceStatus.CANCELLED;
+        }
     }
 }

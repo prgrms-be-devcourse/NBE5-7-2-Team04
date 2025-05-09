@@ -24,15 +24,22 @@ public class PerformanceSchedule extends BaseEntity {
 
     private int remainingSeats; // 남은 좌석
 
-    private boolean is_canceled; // 회차 취소 여부
+    @Column(name = "is_canceled")
+    private boolean canceled; // 회차 취소 여부
 
     @Builder
-    public PerformanceSchedule(Long id, Long performanceId, LocalDateTime startTime, LocalDateTime endTime, int remainingSeats, boolean is_canceled) {
+    public PerformanceSchedule(Long id, Long performanceId, LocalDateTime startTime, LocalDateTime endTime, int remainingSeats, boolean canceled) {
         this.id = id;
         this.performanceId = performanceId;
         this.startTime = startTime;
         this.endTime = endTime;
         this.remainingSeats = remainingSeats;
-        this.is_canceled = is_canceled;
+        this.canceled = canceled;
+    }
+
+    public void cancel() {
+        if (!this.canceled) {
+            this.canceled = true;
+        }
     }
 }
