@@ -49,7 +49,7 @@ jobs:
         with:
           context: ./frontend
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/killing04-frontend:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_FRONTEND }}:latest
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
@@ -59,7 +59,7 @@ jobs:
           key: ${{ secrets.KEY }}
           script: |
             echo "Pulling new frontend image..."
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/killing04-frontend
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_FRONTEND }}
             
             echo "Stopping and removing old frontend container..."
             sudo docker rm -f killing04_frontend || true
