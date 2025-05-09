@@ -27,8 +27,8 @@ jobs:
         uses: mirromutth/mysql-action@v1.1
         with:
           mysql database: 'testDB'
-          mysql user: 'root'
-          mysql password: '1234'
+          mysql user: 'test'
+          mysql password: 'test'
 
       - name: Create application.yml
         run: |
@@ -37,8 +37,8 @@ jobs:
           spring:
             datasource:
               url: jdbc:mysql://localhost:3306/testDB
-              username: root
-              password: 1234
+              username: test
+              password: test
               driver-class-name: com.mysql.cj.jdbc.Driver
 
             jpa:
