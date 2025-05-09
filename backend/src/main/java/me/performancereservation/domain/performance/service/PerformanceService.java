@@ -20,6 +20,8 @@ import me.performancereservation.domain.performance.repository.PerformanceSchedu
 import me.performancereservation.global.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -120,7 +122,7 @@ public class PerformanceService {
 
         // 응답 페이징 반환
         return performances.map(performance -> (
-                PerformanceMapper.toListResponse(performance, fileUrlMap.get(performance.getFileId()), true)));
+                PerformanceMapper.toListResponse(performance, fileUrlMap.get(performance.getFileId()))));
     }
 
 
