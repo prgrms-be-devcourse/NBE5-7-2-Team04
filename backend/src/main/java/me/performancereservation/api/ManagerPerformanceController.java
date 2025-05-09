@@ -66,7 +66,7 @@ public class ManagerPerformanceController {
      * @param managerId
      * @return 201 + performanceId
      */
-    /*@PostMapping("/register")
+    @PostMapping("/register")
     public ResponseEntity<Long> registerPerformance(
             @RequestPart("request") PerformanceCreateRequest request,
             @RequestPart("image") MultipartFile image,
@@ -76,7 +76,7 @@ public class ManagerPerformanceController {
         UploadFileResponse uploadFile = fileService.upload(image);
         Long performanceId = performanceService.createPerformance(request, uploadFile.id(), managerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(performanceId);
-    }*/
+    }
 
     /** 공연 수정 호출
      *
