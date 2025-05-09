@@ -42,6 +42,8 @@ class PerformanceScheduleServiceTest {
     static final Long PERFORMANCE_ID_NOT_CONFIRM = 2L;
     static final Long FILE_ID = 1L;
 
+    static final Long MANAGER_ID = 1L;
+
     Performance performance;
     PerformanceSchedule schedule;
 
@@ -59,6 +61,7 @@ class PerformanceScheduleServiceTest {
                 .performanceDate(LocalDateTime.of(2025, 12, 13, 0, 0))
                 .description("한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!")
                 .fileId(FILE_ID)
+                .managerId(MANAGER_ID)
                 .status(PerformanceStatus.CONFIRMED)
                 .build();
 
@@ -72,6 +75,7 @@ class PerformanceScheduleServiceTest {
                 .performanceDate(LocalDateTime.of(2025, 12, 13, 0, 0))
                 .description("한자리에서 만나는 오페라 명곡들 그리고 오페라 스타들!")
                 .fileId(FILE_ID)
+                .managerId(MANAGER_ID)
                 .status(PerformanceStatus.PENDING)
                 .build();
 
@@ -97,7 +101,7 @@ class PerformanceScheduleServiceTest {
         when(performanceScheduleRepository.save(any(PerformanceSchedule.class))).thenReturn(schedule);
 
         //when
-        Long savedScheduleId = scheduleService.createPerformanceSchedule(PERFORMANCE_ID, request);
+        Long savedScheduleId = scheduleService.createPerformanceSchedule(PERFORMANCE_ID, request, MANAGER_ID);
 
         //then
         assertThat(savedScheduleId).isEqualTo(PERFORMANCE_SCHEDULE_ID);
@@ -115,7 +119,7 @@ class PerformanceScheduleServiceTest {
         when(performanceRepository.findById(PERFORMANCE_ID_NOT_CONFIRM)).thenReturn(Optional.of(performanceNotConfirm));
 
         //when & then
-        assertThatThrownBy(() -> scheduleService.createPerformanceSchedule(PERFORMANCE_ID_NOT_CONFIRM, request))
+        assertThatThrownBy(() -> scheduleService.createPerformanceSchedule(PERFORMANCE_ID_NOT_CONFIRM, request, MANAGER_ID))
                 .isInstanceOf(AppException.class)
                 .hasMessageContaining("공연이 승인 대기 중입니다. 승인 후 회차 등록이 가능합니다.");
     }
@@ -126,9 +130,10 @@ class PerformanceScheduleServiceTest {
     void cancelPerformanceSchedule_Success() {
         //given
         when(performanceScheduleRepository.findById(PERFORMANCE_SCHEDULE_ID)).thenReturn(Optional.of(schedule));
+        when(performanceRepository.findById(PERFORMANCE_ID)).thenReturn(Optional.of(performance));
 
         //when
-        Long canceledId = scheduleService.cancelPerformanceSchedule(PERFORMANCE_SCHEDULE_ID);
+        Long canceledId = scheduleService.cancelPerformanceSchedule(PERFORMANCE_ID, PERFORMANCE_SCHEDULE_ID, MANAGER_ID);
 
         //then
         assertThat(schedule.isCanceled()).isTrue();
