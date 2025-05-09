@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
  * @param price
  * @param performanceDate
  * @param venue
- * @param status    // 판매 여부(AVAILABLE, SOLD_OUT 등)
  */
 public record PerformanceListResponse(
         Long id,
@@ -18,7 +17,6 @@ public record PerformanceListResponse(
         String title,
         int price,
         LocalDateTime performanceDate,
-        String venue,
-        String status
+        String venue
 ) {
 }

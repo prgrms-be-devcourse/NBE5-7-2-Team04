@@ -61,24 +61,16 @@ public class PerformanceMapper {
      *
      * @param performance
      * @param fileUrl
-     * @param onSale
      * @return PerformanceListResponse
      */
-    public static PerformanceListResponse toListResponse(Performance performance, String fileUrl, boolean onSale) {
-        String status = "AVAILABLE";
-
-        if(!onSale) {
-            status = "SOLD_OUT";
-        }
-
+    public static PerformanceListResponse toListResponse(Performance performance, String fileUrl) {
         return new PerformanceListResponse(
                 performance.getId(),
                 fileUrl,
                 performance.getTitle(),
                 performance.getPrice(),
                 performance.getPerformanceDate(),
-                performance.getVenue(),
-                status
+                performance.getVenue()
         );
     }
 
