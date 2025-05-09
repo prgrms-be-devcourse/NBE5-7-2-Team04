@@ -30,27 +30,43 @@ public class RefundService {
 
     // refundRequest를 받고 Refund를 생성하여 저장
     public Long save(RefundRequest refundRequest) {
-        // 이미 같은 예약ID인 Refund가 존재한다면 예외 던짐
+        // 이미 같은 예약ID인 Refund가 존재한다면 예외 던짐 (이미 환불신청된 이력 있음)
         if (refundRepository.findRefundByReservationId(refundRequest.getReservationId()).isPresent()) {
             throw new AppException(ErrorCode.DUPLICATE_REFUND_ERROR, ErrorType.DOMAIN);
         }
 
-        Refund newRefund = Refund.builder()
-                .reservationId(refundRequest.getReservationId())
-                .userId(refundRequest.getUserId())
-                .account(refundRequest.getAccount())
-                .bank(refundRequest.getBank())
-                .status(refundRequest.getStatus())
-                .build();
+        // 예약 상태 확인
+        Reservation reservation = reservationRepository.findById(refundRequest.getReservationId())
+                .orElseThrow(); // 나중에 예약 에러 추가
+
+        Refund newRefund;
+        // PAYMENTS_PENDING 상태인 경우 바로 CONFIRMED로 설정
+        if (reservation.getStatus() == ReservationStatus.PAYMENTS_PENDING) {
+            newRefund = Refund.builder()
+                    .reservationId(refundRequest.getReservationId())
+                    .userId(refundRequest.getUserId())
+                    .account(refundRequest.getAccount())
+                    .bank(refundRequest.getBank())
+                    .status(RefundStatus.CONFIRMED)
+                    .build();
+            
+            // 예약 상태를 CANCEL_CONFIRMED로 변경
+            reservation.setStatus(ReservationStatus.CANCEL_CONFIRMED);
+        } else { // 이미 결제한 경우 PENDING 상태로 환불 생성
+            newRefund = Refund.builder()
+                    .reservationId(refundRequest.getReservationId())
+                    .userId(refundRequest.getUserId())
+                    .account(refundRequest.getAccount())
+                    .bank(refundRequest.getBank())
+                    .status(RefundStatus.PENDING)
+                    .build();
+            
+            // 예약 상태를 CANCEL_PENDING로 변경
+            reservation.setStatus(ReservationStatus.CANCEL_PENDING);
+        }
 
         // refund 저장 후 설정된 id 기록
-        Long savedRefundId = refundRepository.save(newRefund).getId();
-
-        // 예약 : CANCEL_PENDING 상태로 변경
-        Reservation reservation = reservationRepository.findById(refundRequest.getReservationId()).orElseThrow();
-        reservation.setStatus(ReservationStatus.CANCEL_PENDING);
-
-        return savedRefundId;
+        return refundRepository.save(newRefund).getId();
     }
 
     // 모든 id의 환불내역 디테일 조회

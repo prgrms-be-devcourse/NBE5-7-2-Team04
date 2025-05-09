@@ -14,13 +14,12 @@ import java.time.temporal.ChronoUnit;
 public class RefundTestUtils {
 
     public static void logRefundRequest(RefundRequest request, String prefix) {
-        log.info("{}: reservationId={}, userId={}, account={}, bank={}, status={}",
+        log.info("{}: reservationId={}, userId={}, account={}, bank={}",
                 prefix,
                 request.getReservationId(),
                 request.getUserId(),
                 request.getAccount(),
-                request.getBank(),
-                request.getStatus());
+                request.getBank());
     }
 
     public static void logRefundEntity(Refund refund, String prefix) {
@@ -66,24 +65,19 @@ public class RefundTestUtils {
 
     public static void assertRefundDetailResponse(RefundDetailResponse response, RefundRequest request, Reservation reservation, PerformanceSchedule schedule, Performance performance) {
         Assertions.assertThat(response.getRefundId()).isNotNull();
-        Assertions.assertThat(response.getUserId()).isEqualTo(request.getUserId());
         Assertions.assertThat(response.getReservationId()).isEqualTo(request.getReservationId());
+        Assertions.assertThat(response.getUserId()).isEqualTo(request.getUserId());
         Assertions.assertThat(response.getAccount()).isEqualTo(request.getAccount());
         Assertions.assertThat(response.getBank()).isEqualTo(request.getBank());
-        Assertions.assertThat(response.getRefundStatus()).isEqualTo(request.getStatus());
-        
         Assertions.assertThat(response.getQuantity()).isEqualTo(reservation.getQuantity());
-        
         Assertions.assertThat(response.getStartTime().truncatedTo(ChronoUnit.SECONDS))
                 .isEqualTo(schedule.getStartTime().truncatedTo(ChronoUnit.SECONDS));
-
         Assertions.assertThat(response.getFileId()).isEqualTo(performance.getFileId());
         Assertions.assertThat(response.getTitle()).isEqualTo(performance.getTitle());
         Assertions.assertThat(response.getVenue()).isEqualTo(performance.getVenue());
         Assertions.assertThat(response.getPrice()).isEqualTo(performance.getPrice());
         Assertions.assertThat(response.getCategory()).isEqualTo(performance.getCategory());
-        Assertions.assertThat(response.getPerformance_date().truncatedTo(ChronoUnit.SECONDS))
-                .isEqualTo(performance.getPerformance_date().truncatedTo(ChronoUnit.SECONDS));
+        Assertions.assertThat(response.getPerformance_date()).isEqualTo(performance.getPerformance_date());
         Assertions.assertThat(response.getDescription()).isEqualTo(performance.getDescription());
     }
 }
