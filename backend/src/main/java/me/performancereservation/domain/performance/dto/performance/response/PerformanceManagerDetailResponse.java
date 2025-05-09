@@ -11,6 +11,7 @@ import java.util.List;
  * @param title
  * @param venue
  * @param status
+ * @param totalSeats
  * @param schedules
  */
 public record PerformanceManagerDetailResponse(
@@ -19,6 +20,7 @@ public record PerformanceManagerDetailResponse(
         String title,
         String venue,
         String status,
+        int totalSeats,
         List<PerformanceScheduleResponse> schedules
         ) {
 }

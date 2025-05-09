@@ -21,11 +21,10 @@ public class PerformanceMapper {
      * @param request
      * @return Performance
      */
-//    public static Performance toEntity(PerformanceCreateRequest request, Long fileId, Long managerId) {
-    public static Performance toEntity(PerformanceCreateRequest request) {
+    public static Performance toEntity(PerformanceCreateRequest request, Long fileId, Long managerId) {
         return Performance.builder()
-//                .fileId(fileId)
-//                .managerId(managerID)
+                .fileId(fileId)
+                .managerId(managerId)
                 .title(request.title())
                 .venue(request.venue())
                 .price(request.price())
@@ -115,6 +114,7 @@ public class PerformanceMapper {
                 performance.getTitle(),
                 performance.getVenue(),
                 performance.getStatus().toString(),
+                performance.getTotalSeats(),
                 schedules
         );
     }
