@@ -16,7 +16,7 @@ public enum ErrorCode {
     MISSING_FILE_PARAMETER(HttpStatus.BAD_REQUEST, "요청에 'file' 파라미터가 포함되어야 합니다."),
     UNSUPPORTED_FILE_TYPE(HttpStatus.BAD_REQUEST, "이미지 파일만 업로드 가능합니다."),
     FILE_EXTENSION_MISSING(HttpStatus.BAD_REQUEST, "확장자가 없는 파일로 요청했습니다."),
-    EMPTY_FILE_UPLOAD(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
+    EMPTY_FILE_UPLOAD(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다."),
 
     // 유저 관련
 
@@ -25,6 +25,9 @@ public enum ErrorCode {
     // 예약 관련
 
     // 환불 관련
+    NO_SUCH_REFUND_ERROR(HttpStatus.BAD_REQUEST, "존재하지 않는 환불ID입니다."),
+    DUPLICATE_REFUND_ERROR(HttpStatus.BAD_REQUEST, "이미 존재하는 환불내역입니다."),
+    INVALID_REFUND_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 환불 상태입니다.");
 
     // 정산 관련
 

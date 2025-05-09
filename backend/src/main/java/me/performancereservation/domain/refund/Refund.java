@@ -22,14 +22,15 @@ public class Refund extends BaseEntity {
 
     private String bank; // 환불 받을 은행
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private RefundStatus status; // 환불대기, 환불완료 상태 표시
 
-    public void setStatus(RefundStatus status) {
-        // 유효성검사 추가
-
-        this.status = status;
-    }
+//    public void setStatus(RefundStatus status) {
+//        // 유효성검사 추가
+//
+//        this.status = status;
+//    }
 
     @Builder
     public Refund(Long id, Long reservationId, Long userId, String account, String bank, RefundStatus status) {
