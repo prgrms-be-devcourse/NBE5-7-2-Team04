@@ -141,136 +141,6 @@ class RefundServiceTest {
     }
 
     @Test
-    @DisplayName("전체 환불 목록 조회 테스트")
-    void findAllRefundsTest() throws Exception {
-        // given
-        log.info("환불 목록 조회 테스트 시작");
-
-        // 첫 번째 환불 저장
-        Long savedId1 = refundService.save(refundRequest);
-        log.info("첫 번째 환불 저장 완료: savedId={}", savedId1);
-
-        // 두 번째 환불 저장
-        RefundRequest refundRequest2 = RefundRequest.builder()
-                .reservationId(2L)
-                .userId(2L)
-                .account("987-654-321")
-                .bank("국민은행")
-                .status(RefundStatus.PENDING)
-                .build();
-        Long savedId2 = refundService.save(refundRequest2);
-        log.info("두 번째 환불 저장 완료: savedId={}", savedId2);
-
-        // when
-        List<RefundResponse> refundResponses = refundService.findAllRefunds();
-        log.info("환불 목록 조회 완료: size={}", refundResponses.size());
-
-        // then
-        assertThat(refundResponses).hasSize(2);
-
-        // 첫 번째 환불 검증
-        RefundResponse firstRefund = refundResponses.get(0);
-        RefundTestUtils.logRefundResponse(firstRefund, "첫 번째 환불 정보");
-
-        assertThat(firstRefund.getReservationId()).isEqualTo(refundRequest.getReservationId());
-        assertThat(firstRefund.getAccount()).isEqualTo(refundRequest.getAccount());
-        assertThat(firstRefund.getBank()).isEqualTo(refundRequest.getBank());
-        assertThat(firstRefund.getStatus()).isEqualTo(refundRequest.getStatus());
-
-        // 두 번째 환불 검증
-        RefundResponse secondRefund = refundResponses.get(1);
-        RefundTestUtils.logRefundResponse(secondRefund, "두 번째 환불 정보");
-
-        assertThat(secondRefund.getReservationId()).isEqualTo(refundRequest2.getReservationId());
-        assertThat(secondRefund.getAccount()).isEqualTo(refundRequest2.getAccount());
-        assertThat(secondRefund.getBank()).isEqualTo(refundRequest2.getBank());
-        assertThat(secondRefund.getStatus()).isEqualTo(refundRequest2.getStatus());
-
-        log.info("환불 목록 조회 테스트 완료");
-    }
-
-    @Test
-    @DisplayName("환불 상태별 목록 조회")
-    void findAllRefundByStatusTest() throws Exception {
-        // given
-        log.info("환불 상태별 조회 테스트 시작");
-
-        // 첫 번째 PENDING 상태의 환불 저장
-        RefundRequest pendingRequest1 = RefundRequest.builder()
-                .reservationId(1L)
-                .userId(1L)
-                .account("123-456-789")
-                .bank("신한은행")
-                .status(RefundStatus.PENDING)
-                .build();
-        Long pendingId1 = refundService.save(pendingRequest1);
-        log.info("첫 번째 PENDING 상태 환불 저장 완료: savedId={}", pendingId1);
-
-        // 두 번째 PENDING 상태의 환불 저장
-        RefundRequest pendingRequest2 = RefundRequest.builder()
-                .reservationId(2L)
-                .userId(2L)
-                .account("987-654-321")
-                .bank("국민은행")
-                .status(RefundStatus.PENDING)
-                .build();
-        Long pendingId2 = refundService.save(pendingRequest2);
-        log.info("두 번째 PENDING 상태 환불 저장 완료: savedId={}", pendingId2);
-
-        // CONFIRMED 상태의 환불 저장
-        RefundRequest confirmedRequest = RefundRequest.builder()
-                .reservationId(3L)
-                .userId(3L)
-                .account("111-222-333")
-                .bank("우리은행")
-                .status(RefundStatus.CONFIRMED)
-                .build();
-        Long confirmedId = refundService.save(confirmedRequest);
-        log.info("CONFIRMED 상태 환불 저장 완료: savedId={}", confirmedId);
-
-        // when
-        List<RefundResponse> pendingRefunds = refundService.findAllRefundByStatus(RefundStatus.PENDING);
-        List<RefundResponse> confirmedRefunds = refundService.findAllRefundByStatus(RefundStatus.CONFIRMED);
-
-        log.info("PENDING 상태 환불 목록 조회 완료: size={}", pendingRefunds.size());
-        log.info("CONFIRMED 상태 환불 목록 조회 완료: size={}", confirmedRefunds.size());
-
-        // then
-        // PENDING 상태 환불 검증
-        assertThat(pendingRefunds).hasSize(2);
-
-        // 첫 번째 PENDING 환불 검증
-        RefundResponse pendingRefund1 = pendingRefunds.get(0);
-        RefundTestUtils.logRefundResponse(pendingRefund1, "첫 번째 PENDING 상태 환불 정보");
-
-        assertThat(pendingRefund1.getReservationId()).isEqualTo(pendingRequest1.getReservationId());
-        assertThat(pendingRefund1.getAccount()).isEqualTo(pendingRequest1.getAccount());
-        assertThat(pendingRefund1.getBank()).isEqualTo(pendingRequest1.getBank());
-        assertThat(pendingRefund1.getStatus()).isEqualTo(RefundStatus.PENDING);
-
-        // 두 번째 PENDING 환불 검증
-        RefundResponse pendingRefund2 = pendingRefunds.get(1);
-        RefundTestUtils.logRefundResponse(pendingRefund2, "두 번째 PENDING 상태 환불 정보");
-
-        assertThat(pendingRefund2.getReservationId()).isEqualTo(pendingRequest2.getReservationId());
-        assertThat(pendingRefund2.getAccount()).isEqualTo(pendingRequest2.getAccount());
-        assertThat(pendingRefund2.getBank()).isEqualTo(pendingRequest2.getBank());
-        assertThat(pendingRefund2.getStatus()).isEqualTo(RefundStatus.PENDING);
-
-        // CONFIRMED 상태 환불 검증
-        assertThat(confirmedRefunds).hasSize(1);
-        RefundResponse confirmedRefund = confirmedRefunds.get(0);
-        RefundTestUtils.logRefundResponse(confirmedRefund, "CONFIRMED 상태 환불 정보");
-
-        assertThat(confirmedRefund.getReservationId()).isEqualTo(confirmedRequest.getReservationId());
-        assertThat(confirmedRefund.getAccount()).isEqualTo(confirmedRequest.getAccount());
-        assertThat(confirmedRefund.getBank()).isEqualTo(confirmedRequest.getBank());
-        assertThat(confirmedRefund.getStatus()).isEqualTo(RefundStatus.CONFIRMED);
-
-        log.info("환불 상태별 조회 테스트 완료");
-    }
-
-    @Test
     @DisplayName("전체 환불 상세 정보 조회 테스트")
     void findAllRefundsDetailTest() throws Exception {
         // given
@@ -321,18 +191,6 @@ class RefundServiceTest {
         log.info("환불 상세 정보 조회 테스트 완료");
     }
 
-    /**
-     * 테스트 시나리오:
-     * 특정 사용자(userId = 1L)의 환불 2건 생성.
-     * 다른 사용자(userId = 2L)의 환불 1건 생성.
-     * 특정 사용자의 환불 상세 정보만 조회되는지 확인
-     * //
-     * 검증 포인트:
-     * 조회된 환불 상세 정보의 개수가 2개인지 확인.
-     * 각 환불 상세 정보의 내용이 올바른지 검증.
-     * 다른 사용자의 환불 정보가 포함되지 않는지 확인.
-     *
-     */
     @Test
     @DisplayName("특정 사용자의 환불 상세 정보 조회 테스트")
     void findAllRefundsDetailByUserIdTest() throws Exception {
@@ -404,6 +262,88 @@ class RefundServiceTest {
         RefundTestUtils.assertRefundDetailResponse(secondRefundDetail, refundRequest2, reservation2, schedule, performance);
 
         log.info("특정 사용자의 환불 상세 정보 조회 테스트 완료");
+    }
+
+    @Test
+    @DisplayName("환불 상태별 상세 정보 조회 테스트")
+    void findAllRefundsDetailByRefundStatusTest() throws Exception {
+        // given
+        log.info("환불 상태별 상세 정보 조회 테스트 시작");
+
+        // 첫 번째 PENDING 상태의 환불 저장
+        Long savedId1 = refundService.save(refundRequest);
+        log.info("첫 번째 PENDING 상태 환불 저장 완료: savedId={}", savedId1);
+
+        // 두 번째 예약 생성
+        Reservation reservation2 = Reservation.builder()
+                .userId(2L)
+                .scheduleId(schedule.getId())
+                .quantity(1)
+                .status(ReservationStatus.CANCEL_PENDING)
+                .build();
+        reservation2 = reservationRepository.save(reservation2);
+        log.info("두 번째 예약 저장 완료: id={}", reservation2.getId());
+
+        // 세 번째 예약 생성 (user 2, CONFIRMED 상태로 만들 예정)
+        Reservation reservation3 = Reservation.builder()
+                .userId(2L)
+                .scheduleId(schedule.getId())
+                .quantity(3)
+                .status(ReservationStatus.CANCEL_PENDING)
+                .build();
+        reservation3 = reservationRepository.save(reservation3);
+        log.info("세 번째 예약 저장 완료: id={}", reservation3.getId());
+
+        // 두 번째 PENDING 상태의 환불 저장
+        RefundRequest refundRequest2 = RefundRequest.builder()
+                .reservationId(reservation2.getId())
+                .userId(2L)
+                .account("987-654-321")
+                .bank("국민은행")
+                .status(RefundStatus.PENDING)
+                .build();
+        Long savedId2 = refundService.save(refundRequest2);
+        log.info("두 번째 PENDING 상태 환불 저장 완료: savedId={}", savedId2);
+
+        // 첫 번째 CONFIRMED 상태의 환불 저장
+        RefundRequest confirmedRequest = RefundRequest.builder()
+                .reservationId(reservation3.getId())
+                .userId(2L)
+                .account("111-222-333")
+                .bank("우리은행")
+                .status(RefundStatus.CONFIRMED)
+                .build();
+        Long confirmedId = refundService.save(confirmedRequest);
+        log.info("CONFIRMED 상태 환불 저장 완료: savedId={}", confirmedId);
+
+        // when
+        List<RefundDetailResponse> pendingRefunds = refundService.findAllRefundsDetailByRefundStatus(RefundStatus.PENDING);
+        List<RefundDetailResponse> confirmedRefunds = refundService.findAllRefundsDetailByRefundStatus(RefundStatus.CONFIRMED);
+
+        log.info("PENDING 상태 환불 상세 정보 조회 완료: size={}", pendingRefunds.size());
+        log.info("CONFIRMED 상태 환불 상세 정보 조회 완료: size={}", confirmedRefunds.size());
+
+        // then
+        // PENDING 상태 환불 검증
+        assertThat(pendingRefunds).hasSize(2);
+
+        // 첫 번째 PENDING 환불 검증
+        RefundDetailResponse pendingRefund1 = pendingRefunds.get(0);
+        RefundTestUtils.logRefundDetailResponse(pendingRefund1, "첫 번째 PENDING 상태 환불 상세 정보");
+        RefundTestUtils.assertRefundDetailResponse(pendingRefund1, refundRequest, reservation, schedule, performance);
+
+        // 두 번째 PENDING 환불 검증
+        RefundDetailResponse pendingRefund2 = pendingRefunds.get(1);
+        RefundTestUtils.logRefundDetailResponse(pendingRefund2, "두 번째 PENDING 상태 환불 상세 정보");
+        RefundTestUtils.assertRefundDetailResponse(pendingRefund2, refundRequest2, reservation2, schedule, performance);
+
+        // CONFIRMED 상태 환불 검증
+        assertThat(confirmedRefunds).hasSize(1);
+        RefundDetailResponse confirmedRefund = confirmedRefunds.get(0);
+        RefundTestUtils.logRefundDetailResponse(confirmedRefund, "CONFIRMED 상태 환불 상세 정보");
+        RefundTestUtils.assertRefundDetailResponse(confirmedRefund, confirmedRequest, reservation3, schedule, performance);
+
+        log.info("환불 상태별 상세 정보 조회 테스트 완료");
     }
 
     /*------------- 실패 테스트 ------------*/

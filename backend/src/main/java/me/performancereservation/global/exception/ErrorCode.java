@@ -24,8 +24,9 @@ public enum ErrorCode {
     // 예약 관련
 
     // 환불 관련
-    NO_SUCH_REFUND_ERROR(HttpStatus.NOT_FOUND, "존재하지 않는 환불ID입니다."),
-    DUPLICATE_REFUND_ERROR(HttpStatus.CONFLICT, "이미 존재하는 환불내역입니다.");
+    NO_SUCH_REFUND_ERROR(HttpStatus.BAD_REQUEST, "존재하지 않는 환불ID입니다."),
+    DUPLICATE_REFUND_ERROR(HttpStatus.BAD_REQUEST, "이미 존재하는 환불내역입니다."),
+    INVALID_REFUND_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 환불 상태입니다.");
 
     // 정산 관련
 

@@ -36,4 +36,11 @@ public interface RefundRepository extends JpaRepository<Refund, Long> {
             "WHERE rf.userId = :userId")
     List<Object[]> findRefundsDetailByUserId(@Param("userId") Long userId);
 
+    @Query("SELECT rf, res.quantity, sch.startTime, p FROM Refund rf " +
+            "JOIN Reservation res ON rf.reservationId = res.id " +
+            "JOIN PerformanceSchedule sch ON res.scheduleId = sch.id " +
+            "JOIN Performance p ON sch.performanceId = p.id " +
+            "WHERE rf.status = :status")
+    List<Object[]> findRefundsDetailByStatus(@Param("status") RefundStatus status);
+
 }

@@ -7,6 +7,9 @@ import me.performancereservation.domain.refund.dto.RefundDetailResponse;
 import me.performancereservation.domain.refund.dto.RefundRequest;
 import me.performancereservation.domain.refund.dto.RefundResponse;
 import me.performancereservation.domain.refund.enums.RefundStatus;
+import me.performancereservation.domain.reservation.Reservation;
+import me.performancereservation.domain.reservation.ReservationRepository;
+import me.performancereservation.domain.reservation.enums.ReservationStatus;
 import me.performancereservation.global.exception.AppException;
 import me.performancereservation.global.exception.ErrorCode;
 import me.performancereservation.global.exception.ErrorType;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +26,7 @@ import java.util.stream.Collectors;
 public class RefundService {
 
     private final RefundRepository refundRepository;
+    private final ReservationRepository reservationRepository;
 
     // refundRequest를 받고 Refund를 생성하여 저장
     public Long save(RefundRequest refundRequest) {
@@ -38,7 +43,14 @@ public class RefundService {
                 .status(refundRequest.getStatus())
                 .build();
 
-        return refundRepository.save(newRefund).getId();
+        // refund 저장 후 설정된 id 기록
+        Long savedRefundId = refundRepository.save(newRefund).getId();
+
+        // 예약 : CANCEL_PENDING 상태로 변경
+        Reservation reservation = reservationRepository.findById(refundRequest.getReservationId()).orElseThrow();
+        reservation.setStatus(ReservationStatus.CANCEL_PENDING);
+
+        return savedRefundId;
     }
 
     // 모든 id의 환불내역 디테일 조회
@@ -51,6 +63,12 @@ public class RefundService {
     // 입력받은 id의 환불내역 디테일 조회
     public List<RefundDetailResponse> findAllRefundsDetailByUserId(Long userId) {
         List<Object[]> results = refundRepository.findRefundsDetailByUserId(userId);
+        return getRefundDetailResponses(results);
+    }
+
+    // 특정 status의 환불내역 디테일 조회
+    public List<RefundDetailResponse> findAllRefundsDetailByRefundStatus(RefundStatus refundStatus) {
+        List<Object[]> results = refundRepository.findRefundsDetailByStatus(refundStatus);
         return getRefundDetailResponses(results);
     }
 
@@ -76,7 +94,7 @@ public class RefundService {
                 .collect(Collectors.toList()); // stream-> list로 변환
     }
 
-    // 전체 refund 목록 상태별 조회 (PENDING, CONFIRMED)
+    // 전체 refund 목록 상태별 조회 (간단한 내용)
     public List<RefundResponse> findAllRefundByStatus(RefundStatus status) {
         List<Refund> foundRefunds = refundRepository.findRefundByStatus(status);
         return foundRefunds.stream()
@@ -87,15 +105,19 @@ public class RefundService {
     // 환불 상태 변경
     public void updateRefundStatus(Long id, RefundStatus status) {
         // id로 먼저 찾아보고 해당하는 Refund가 없다면 throw NO_SUCH_REFUND_ERROR
-        if (!refundRepository.existsById(id)) {
-            throw new AppException(ErrorCode.NO_SUCH_REFUND_ERROR, ErrorType.DOMAIN);
-        }
+        Refund refund = refundRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.NO_SUCH_REFUND_ERROR, ErrorType.DOMAIN));
         
         // 레포지토리의 메서드를 호출하여 상태 업데이트
         int updatedRows = refundRepository.updateRefundStatus(id, status);
         if (updatedRows == 0) {
             throw new AppException(ErrorCode.NO_SUCH_REFUND_ERROR, ErrorType.DOMAIN);
         }
+
+        // 해당하는 예약을 찾아 CANCEL_CONFIRMED로 상태 변경
+        Reservation reservation = reservationRepository.findById(refund.getReservationId()).orElseThrow(); // 나중에 ErrorCode 추가
+        reservation.setStatus(ReservationStatus.CANCEL_CONFIRMED);
+
     }
 
 
