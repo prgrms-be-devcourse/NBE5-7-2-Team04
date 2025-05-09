@@ -8,7 +8,6 @@ import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.entities.PerformanceSchedule;
 import me.performancereservation.domain.performance.enums.PerformanceCategory;
 import me.performancereservation.domain.performance.enums.PerformanceStatus;
-import me.performancereservation.domain.performance.mapper.PerformanceMapper;
 import me.performancereservation.domain.performance.repository.PerformanceRepository;
 import me.performancereservation.domain.performance.repository.PerformanceScheduleRepository;
 import org.junit.jupiter.api.BeforeEach;
