@@ -3,7 +3,6 @@ package me.performancereservation.domain.refund;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import me.performancereservation.domain.performance.entities.Performance;
-import me.performancereservation.domain.performance.enums.ScheduleStatus;
 import me.performancereservation.domain.refund.dto.RefundDetailResponse;
 import me.performancereservation.domain.refund.dto.RefundRequest;
 import me.performancereservation.domain.refund.dto.RefundResponse;
@@ -62,10 +61,9 @@ public class RefundService {
                     Refund refund = (Refund) result[0];
                     Integer reservationQuantity = (Integer) result[1];
                     LocalDateTime startTime = (LocalDateTime) result[2];
-                    ScheduleStatus scheduleStatus = (ScheduleStatus) result[3];
-                    Performance performance = (Performance) result[4];
+                    Performance performance = (Performance) result[3];
 
-                    return RefundDetailResponse.fromEntity(refund, reservationQuantity, startTime, scheduleStatus, performance);
+                    return RefundDetailResponse.fromEntity(refund, reservationQuantity, startTime, performance);
                 })
                 .collect(Collectors.toList());
     }

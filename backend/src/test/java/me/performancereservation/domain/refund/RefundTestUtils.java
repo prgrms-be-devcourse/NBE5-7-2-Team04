@@ -55,7 +55,6 @@ public class RefundTestUtils {
         log.info("환불 상태: {}", response.getRefundStatus());
         log.info("예약 수량: {}", response.getQuantity());
         log.info("공연 시작 시간: {}", response.getStartTime());
-        log.info("공연 회차 상태: {}", response.getScheduleStatus());
         log.info("공연 제목: {}", response.getTitle());
         log.info("공연 장소: {}", response.getVenue());
         log.info("공연 가격: {}", response.getPrice());
@@ -77,7 +76,6 @@ public class RefundTestUtils {
         
         Assertions.assertThat(response.getStartTime().truncatedTo(ChronoUnit.SECONDS))
                 .isEqualTo(schedule.getStartTime().truncatedTo(ChronoUnit.SECONDS));
-        Assertions.assertThat(response.getScheduleStatus()).isEqualTo(schedule.getScheduleStatus());
 
         Assertions.assertThat(response.getFileId()).isEqualTo(performance.getFileId());
         Assertions.assertThat(response.getTitle()).isEqualTo(performance.getTitle());

@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 import me.performancereservation.domain.performance.entities.Performance;
 import me.performancereservation.domain.performance.enums.PerformanceCategory;
-import me.performancereservation.domain.performance.enums.ScheduleStatus;
 import me.performancereservation.domain.refund.Refund;
 import me.performancereservation.domain.refund.enums.RefundStatus;
 
@@ -36,10 +35,9 @@ public class RefundDetailResponse {
     private PerformanceCategory category; // 공연 분류
     private LocalDateTime performance_date; // 공연 일시
     private String description; // 설명
-    private ScheduleStatus scheduleStatus; // 회차 상태
 
 
-    public static RefundDetailResponse fromEntity(Refund refund, Integer reservationQuantity, LocalDateTime startTime, ScheduleStatus scheduleStatus, Performance performance) {
+    public static RefundDetailResponse fromEntity(Refund refund, Integer reservationQuantity, LocalDateTime startTime, Performance performance) {
         return RefundDetailResponse.builder()
                 .refundId(refund.getId())
                 .userId(refund.getUserId())
@@ -51,7 +49,6 @@ public class RefundDetailResponse {
                 .quantity(reservationQuantity)
 
                 .startTime(startTime)
-                .scheduleStatus(scheduleStatus)
 
                 .fileId(performance.getFileId())
                 .title(performance.getTitle())

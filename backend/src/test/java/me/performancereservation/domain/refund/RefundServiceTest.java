@@ -82,7 +82,6 @@ class RefundServiceTest {
                 .endTime(LocalDateTime.now().plusDays(7).plusHours(2))
                 .remainingSeats(100)
                 .is_canceled(false)
-                .scheduleStatus(ScheduleStatus.AVAILABLE)
                 .build();
         schedule = performanceScheduleRepository.save(schedule);
         log.info("PerformanceSchedule 저장 완료: id={}", schedule.getId());

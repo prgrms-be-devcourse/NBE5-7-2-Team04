@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import me.performancereservation.domain.common.BaseEntity;
-import me.performancereservation.domain.performance.enums.ScheduleStatus;
 
 import java.time.LocalDateTime;
 
@@ -27,16 +26,13 @@ public class PerformanceSchedule extends BaseEntity {
 
     private boolean is_canceled; // 회차 취소 여부
 
-    private ScheduleStatus scheduleStatus; // 회차 상태
-
     @Builder
-    public PerformanceSchedule(Long id, Long performanceId, LocalDateTime startTime, LocalDateTime endTime, int remainingSeats, boolean is_canceled, ScheduleStatus scheduleStatus) {
+    public PerformanceSchedule(Long id, Long performanceId, LocalDateTime startTime, LocalDateTime endTime, int remainingSeats, boolean is_canceled) {
         this.id = id;
         this.performanceId = performanceId;
         this.startTime = startTime;
         this.endTime = endTime;
         this.remainingSeats = remainingSeats;
         this.is_canceled = is_canceled;
-        this.scheduleStatus = scheduleStatus;
     }
 }
