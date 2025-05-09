@@ -27,7 +27,7 @@ public class PerformanceSchedule extends BaseEntity {
 
     private boolean is_canceled; // 회차 취소 여부
 
-    private ScheduleStatus scheduleStatus;
+    private ScheduleStatus scheduleStatus; // 회차 상태
 
     @Builder
     public PerformanceSchedule(Long id, Long performanceId, LocalDateTime startTime, LocalDateTime endTime, int remainingSeats, boolean is_canceled, ScheduleStatus scheduleStatus) {

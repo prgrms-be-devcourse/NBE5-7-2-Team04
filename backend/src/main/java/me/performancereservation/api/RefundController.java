@@ -14,12 +14,19 @@ public class RefundController {
 
     private final RefundService refundService;
 
+    /*--- USER 요청에 대응 ---*/
+    // 본인 id와 일치하는 모든 환불내역 리스트 반환
+
+    // 특정 예약id 환불요청 -> 환불내역 생성
+
+
+    /*--- ADMIN 요청에 대응 ---*/
     // 모든 환불 리스트 반환
 
-    // PENDING 환불 리스트 반환
+    // 모든 환불 내역 중 특정 status 리스트 반환
 
-    // 환불 상태 변경 (PENDING-> CONFIRMED)
+    // 환불 상태 변경 (환불 승인) PENDING-> CONFIRMED
     // 예약 상태도 변경 (CANCEL_PENDING-> CANCEL_CONFIRMED)
-    // 요청 from ADMIN
+
 
 }

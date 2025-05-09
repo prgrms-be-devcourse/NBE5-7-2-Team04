@@ -114,7 +114,7 @@ class RefundServiceTest {
                 .bank("신한은행")
                 .status(RefundStatus.PENDING)
                 .build();
-        log.info("테스트 설정 완료: refundRequest={}, refund={}", refundRequest, refund);
+        log.info("테스트 설정 완료: refundRequest={}", refundRequest);
     }
 
     @Test
@@ -192,7 +192,7 @@ class RefundServiceTest {
 
     @Test
     @DisplayName("환불 상태별 목록 조회")
-    void findRefundByStatusTest() throws Exception {
+    void findAllRefundByStatusTest() throws Exception {
         // given
         log.info("환불 상태별 조회 테스트 시작");
 
@@ -230,8 +230,8 @@ class RefundServiceTest {
         log.info("CONFIRMED 상태 환불 저장 완료: savedId={}", confirmedId);
 
         // when
-        List<RefundResponse> pendingRefunds = refundService.findRefundByStatus(RefundStatus.PENDING);
-        List<RefundResponse> confirmedRefunds = refundService.findRefundByStatus(RefundStatus.CONFIRMED);
+        List<RefundResponse> pendingRefunds = refundService.findAllRefundByStatus(RefundStatus.PENDING);
+        List<RefundResponse> confirmedRefunds = refundService.findAllRefundByStatus(RefundStatus.CONFIRMED);
 
         log.info("PENDING 상태 환불 목록 조회 완료: size={}", pendingRefunds.size());
         log.info("CONFIRMED 상태 환불 목록 조회 완료: size={}", confirmedRefunds.size());
@@ -320,6 +320,91 @@ class RefundServiceTest {
         RefundTestUtils.assertRefundDetailResponse(secondRefundDetail, refundRequest2, reservation2, schedule, performance);
 
         log.info("환불 상세 정보 조회 테스트 완료");
+    }
+
+    /**
+     * 테스트 시나리오:
+     * 특정 사용자(userId = 1L)의 환불 2건 생성.
+     * 다른 사용자(userId = 2L)의 환불 1건 생성.
+     * 특정 사용자의 환불 상세 정보만 조회되는지 확인
+     * //
+     * 검증 포인트:
+     * 조회된 환불 상세 정보의 개수가 2개인지 확인.
+     * 각 환불 상세 정보의 내용이 올바른지 검증.
+     * 다른 사용자의 환불 정보가 포함되지 않는지 확인.
+     *
+     */
+    @Test
+    @DisplayName("특정 사용자의 환불 상세 정보 조회 테스트")
+    void findAllRefundsDetailByUserIdTest() throws Exception {
+        // given
+        log.info("특정 사용자의 환불 상세 정보 조회 테스트 시작");
+        Long userId = 1L;
+
+        // 첫 번째 환불 저장
+        Long savedId1 = refundService.save(refundRequest);
+        log.info("첫 번째 환불 저장 완료: savedId={}", savedId1);
+
+        // 두 번째 예약 생성 (같은 사용자)
+        Reservation reservation2 = Reservation.builder()
+                .userId(userId)
+                .scheduleId(schedule.getId())
+                .quantity(1)
+                .status(ReservationStatus.CANCEL_PENDING)
+                .build();
+        reservation2 = reservationRepository.save(reservation2);
+        log.info("같은 사용자의 두 번째 예약 저장 완료: id={}", reservation2.getId());
+
+        // 두 번째 환불 저장
+        RefundRequest refundRequest2 = RefundRequest.builder()
+                .reservationId(reservation2.getId())
+                .userId(userId)
+                .account("987-654-321")
+                .bank("국민은행")
+                .status(RefundStatus.PENDING)
+                .build();
+        Long savedId2 = refundService.save(refundRequest2);
+        log.info("두 번째 환불 저장 완료: savedId={}", savedId2);
+
+        // 다른 사용자의 예약 생성
+        Reservation otherUserReservation = Reservation.builder()
+                .userId(2L)
+                .scheduleId(schedule.getId())
+                .quantity(3)
+                .status(ReservationStatus.CANCEL_PENDING)
+                .build();
+        otherUserReservation = reservationRepository.save(otherUserReservation);
+        log.info("다른 사용자의 예약 저장 완료: id={}", otherUserReservation.getId());
+
+        // 다른 사용자의 환불 저장
+        RefundRequest otherUserRefundRequest = RefundRequest.builder()
+                .reservationId(otherUserReservation.getId())
+                .userId(2L)
+                .account("111-222-333")
+                .bank("우리은행")
+                .status(RefundStatus.PENDING)
+                .build();
+        Long otherUserSavedId = refundService.save(otherUserRefundRequest);
+        log.info("다른 사용자의 환불 저장 완료: savedId={}", otherUserSavedId);
+
+        // when
+        List<RefundDetailResponse> userRefundDetails = refundService.findAllRefundsDetailByUserId(userId);
+        log.info("특정 사용자의 환불 상세 정보 조회 완료: size={}", userRefundDetails.size());
+
+        // then
+        assertThat(userRefundDetails).hasSize(2);
+
+        // 첫 번째 환불 상세 정보 검증
+        RefundDetailResponse firstRefundDetail = userRefundDetails.get(0);
+        RefundTestUtils.logRefundDetailResponse(firstRefundDetail, "첫 번째 환불 상세 정보");
+        RefundTestUtils.assertRefundDetailResponse(firstRefundDetail, refundRequest, reservation, schedule, performance);
+
+        // 두 번째 환불 상세 정보 검증
+        RefundDetailResponse secondRefundDetail = userRefundDetails.get(1);
+        RefundTestUtils.logRefundDetailResponse(secondRefundDetail, "두 번째 환불 상세 정보");
+        RefundTestUtils.assertRefundDetailResponse(secondRefundDetail, refundRequest2, reservation2, schedule, performance);
+
+        log.info("특정 사용자의 환불 상세 정보 조회 테스트 완료");
     }
 
     /*------------- 실패 테스트 ------------*/

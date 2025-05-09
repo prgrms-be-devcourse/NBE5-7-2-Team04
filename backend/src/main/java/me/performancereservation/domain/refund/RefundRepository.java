@@ -23,9 +23,17 @@ public interface RefundRepository extends JpaRepository<Refund, Long> {
     // 각 Refund마다 id로 join 해서 [Refund, 예약수량, 시작시간, 회차상태, Performance]를 가져와서 리스트로 반환하는 메서드
     // 예약수량과 시작시간만 가져와야하는 부분은 column을 지정해서 불필요한 column 조회 줄임
     @Query("SELECT rf, res.quantity, sch.startTime, sch.scheduleStatus, p FROM Refund rf " +
-           "JOIN Reservation res ON rf.reservationId = res.id " +
-           "JOIN PerformanceSchedule sch ON res.scheduleId = sch.id " +
-           "JOIN Performance p ON sch.performanceId = p.id")
+            "JOIN Reservation res ON rf.reservationId = res.id " +
+            "JOIN PerformanceSchedule sch ON res.scheduleId = sch.id " +
+            "JOIN Performance p ON sch.performanceId = p.id")
     List<Object[]> findAllRefundsWithDetails();
+
+    // 위의 findAllRefundsWithDetails에서 where절만 추가
+    @Query("SELECT rf, res.quantity, sch.startTime, sch.scheduleStatus, p FROM Refund rf " +
+            "JOIN Reservation res ON rf.reservationId = res.id " +
+            "JOIN PerformanceSchedule sch ON res.scheduleId = sch.id " +
+            "JOIN Performance p ON sch.performanceId = p.id " +
+            "WHERE rf.userId = :userId")
+    List<Object[]> findRefundsDetailByUserId(@Param("userId") Long userId);
 
 }

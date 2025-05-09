@@ -24,7 +24,6 @@ public class RefundService {
 
     private final RefundRepository refundRepository;
 
-
     // refundRequest를 받고 Refund를 생성하여 저장
     public Long save(RefundRequest refundRequest) {
         // 이미 같은 예약ID인 Refund가 존재한다면 예외 던짐
@@ -43,9 +42,21 @@ public class RefundService {
         return refundRepository.save(newRefund).getId();
     }
 
+    // 모든 id의 환불내역 디테일 조회
     public List<RefundDetailResponse> findAllRefundsDetail() {
-        // [Refund, 예약수량, 시작시간, 회차상태, Performance]
+        // 쿼리로 [Refund, 예약수량, 시작시간, 회차상태, Performance]의 리스트를 받아옴
         List<Object[]> results = refundRepository.findAllRefundsWithDetails();
+        return getRefundDetailResponses(results);
+    }
+
+    // 입력받은 id의 환불내역 디테일 조회
+    public List<RefundDetailResponse> findAllRefundsDetailByUserId(Long userId) {
+        List<Object[]> results = refundRepository.findRefundsDetailByUserId(userId);
+        return getRefundDetailResponses(results);
+    }
+
+    // 쿼리로 받아온 Object[] => RefundDetailResponse로 변환하는 메서드
+    private List<RefundDetailResponse> getRefundDetailResponses(List<Object[]> results) {
         return results.stream()
                 .map(result -> {
                     Refund refund = (Refund) result[0];
@@ -54,12 +65,10 @@ public class RefundService {
                     ScheduleStatus scheduleStatus = (ScheduleStatus) result[3];
                     Performance performance = (Performance) result[4];
 
-                    // RefundDetailResponse 내부의 빌더로 RefundDetailResponse 객체를 만들어서 반환
                     return RefundDetailResponse.fromEntity(refund, reservationQuantity, startTime, scheduleStatus, performance);
                 })
                 .collect(Collectors.toList());
     }
-
 
     // 전체 refund 목록 조회 (간단한 내용)
     public List<RefundResponse> findAllRefunds() {
@@ -69,8 +78,8 @@ public class RefundService {
                 .collect(Collectors.toList()); // stream-> list로 변환
     }
 
-    // 상태별 refund 목록 조회 (PENDING, CONFIRMED)
-    public List<RefundResponse> findRefundByStatus(RefundStatus status) {
+    // 전체 refund 목록 상태별 조회 (PENDING, CONFIRMED)
+    public List<RefundResponse> findAllRefundByStatus(RefundStatus status) {
         List<Refund> foundRefunds = refundRepository.findRefundByStatus(status);
         return foundRefunds.stream()
                 .map(RefundResponse::fromRefund)

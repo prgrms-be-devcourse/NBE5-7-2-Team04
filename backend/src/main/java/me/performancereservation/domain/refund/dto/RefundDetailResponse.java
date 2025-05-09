@@ -14,8 +14,9 @@ import java.time.LocalDateTime;
 @Builder
 public class RefundDetailResponse {
 
-    // Refund에서 userId 외의 데이터 전달
+    // Refund에서 데이터 전달
     private Long refundId;
+    private Long userId;
     private Long reservationId;
     private String account;
     private String bank;
@@ -35,12 +36,13 @@ public class RefundDetailResponse {
     private PerformanceCategory category; // 공연 분류
     private LocalDateTime performance_date; // 공연 일시
     private String description; // 설명
-    private ScheduleStatus scheduleStatus;
+    private ScheduleStatus scheduleStatus; // 회차 상태
 
 
     public static RefundDetailResponse fromEntity(Refund refund, Integer reservationQuantity, LocalDateTime startTime, ScheduleStatus scheduleStatus, Performance performance) {
         return RefundDetailResponse.builder()
                 .refundId(refund.getId())
+                .userId(refund.getUserId())
                 .reservationId(refund.getReservationId())
                 .account(refund.getAccount())
                 .bank(refund.getBank())
