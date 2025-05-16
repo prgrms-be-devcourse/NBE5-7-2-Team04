@@ -134,6 +134,8 @@ jobs:
               
           commit:
             hash: test
+
+          dev-host: dummy-host-for-test
             
           EOT
           sed -i "s|\${COMMIT_HASH}|${{ steps.slug.outputs.sha7 }}|g" ./backend/src/main/resources/application.yml
