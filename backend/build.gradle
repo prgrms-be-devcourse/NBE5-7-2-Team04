@@ -55,6 +55,11 @@ dependencies {
 
     //CoolSMS
     implementation 'net.nurigo:sdk:4.3.2'
+
+    // 모니터링
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
 }
 
 tasks.named('test') {
